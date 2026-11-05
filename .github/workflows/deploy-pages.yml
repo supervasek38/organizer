@@ -1,0 +1,43 @@
+name: Deploy Organizer to GitHub Pages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Check out organizer website
+        uses: actions/checkout@v6
+      - name: Validate organizer entry point
+        run: |
+          test -s site/index.html
+          test -s site/main.dart.js
+          test -s site/flutter_bootstrap.js
+          grep -Fq '<base href="/organizer/">' site/index.html
+          grep -Fq 'MONTAS · Организатор' site/index.html
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+      - name: Upload organizer website
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+      - name: Publish organizer
+        id: deployment
+        uses: actions/deploy-pages@v4

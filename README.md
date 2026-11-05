@@ -1,0 +1,32 @@
+# MONTAS · Организатор
+
+Отдельный демонстрационный сайт: https://supervasek38.github.io/organizer/
+
+Этот репозиторий содержит готовую Flutter Web-сборку кабинета организатора в `site/` и собственный workflow Pages. Личный кабинет и переключатель рабочих пространств в этой версии отсутствуют. Исходники поддерживаются в проекте MONTAS; его история Git сюда не переносится.
+
+## Первая публикация
+
+1. Settings → Pages → Build and deployment → Source: **GitHub Actions**.
+2. Actions → **Deploy Organizer to GitHub Pages** → Run workflow → **main**.
+3. После успешного запуска открыть https://supervasek38.github.io/organizer/.
+
+Публикация запускается вручную. Push в `montas` никак не обновляет этот сайт; push в этот репозиторий сохраняет новую сборку, затем нужно запустить workflow.
+
+## Обновление из исходного проекта
+
+В PowerShell, из папки исходного MONTAS:
+
+```powershell
+.\scripts\export-organizer.ps1 -RepositoryPath 'C:\Users\1\Documents\Codex\2026-10-19\new-chat\organizer'
+Set-Location -LiteralPath 'C:\Users\1\Documents\Codex\2026-10-19\new-chat\organizer'
+git status --short
+git add site
+git commit -m "Update organizer demo"
+git push origin main
+```
+
+Затем запустить workflow из Actions. Для другой папки клонирования укажите её в `RepositoryPath`. При необходимости скрипт принимает полный путь к Flutter через `-Flutter` и Git через `-Git`. Скрипт собирает профиль `ORGANIZER_ONLY=true` с базовым адресом `/organizer/`, проверяет репозиторий назначения и заменяет только каталог сгенерированного сайта `site/`.
+
+## Ограничения демо
+
+Тестовые события и участники загружаются при открытии. Изменения, загруженные материалы и уведомления живут в памяти текущей вкладки и сбрасываются при перезагрузке. Реальных рассылок, оплаты, серверной авторизации и синхронизации с полным прототипом нет. Доступ к полному сайту MONTAS по его собственному адресу остаётся независимым.
