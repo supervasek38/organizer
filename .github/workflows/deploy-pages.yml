@@ -14,7 +14,7 @@ jobs:
   deploy:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 25
     permissions:
       contents: read
       pages: write
@@ -25,19 +25,38 @@ jobs:
     steps:
       - name: Check out organizer website
         uses: actions/checkout@v6
+      - name: Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.47.7'
+          channel: stable
+          cache: true
+      - name: Install dependencies
+        working-directory: app
+        run: flutter pub get --enforce-lockfile
+      - name: Analyze organizer sources
+        working-directory: app
+        run: flutter analyze --no-pub lib test
+      - name: Test organizer scenarios
+        working-directory: app
+        run: flutter test --no-pub --reporter expanded
+      - name: Build independent organizer
+        working-directory: app
+        run: flutter build web --release --no-pub --no-web-resources-cdn --base-href /organizer/
       - name: Validate organizer entry point
+        working-directory: app/build/web
         run: |
-          test -s site/index.html
-          test -s site/main.dart.js
-          test -s site/flutter_bootstrap.js
-          grep -Fq '<base href="/organizer/">' site/index.html
-          grep -Fq 'MONTAS · Организатор' site/index.html
+          test -s index.html
+          test -s main.dart.js
+          test -s flutter_bootstrap.js
+          grep -Fq '<base href="/organizer/">' index.html
+          grep -Fq 'MONTAS · Организатор' index.html
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload organizer website
         uses: actions/upload-pages-artifact@v4
         with:
-          path: site
+          path: app/build/web
       - name: Publish organizer
         id: deployment
         uses: actions/deploy-pages@v4
