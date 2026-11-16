@@ -23,7 +23,7 @@ Future<T?> discoveryDialog<T>(
   builder: (ctx) => Dialog(
     backgroundColor: Colors.white,
     insetPadding: const EdgeInsets.all(16),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(26)),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
     child: ConstrainedBox(
       constraints: BoxConstraints(
         maxWidth: 580,
@@ -61,18 +61,20 @@ class DiscoveryLayout extends StatelessWidget {
     required this.id,
     required this.children,
     this.note = discoveryDemoNote,
+    this.maxWidth = 1320,
     super.key,
   });
   final String id;
   final String note;
+  final double maxWidth;
   final List<Widget> children;
   @override
   Widget build(BuildContext context) => SingleChildScrollView(
     key: PageStorageKey(id),
-    padding: EdgeInsets.all(MediaQuery.sizeOf(context).width < 600 ? 16 : 32),
+    padding: EdgeInsets.all(MediaQuery.sizeOf(context).width < 600 ? 24 : 32),
     child: Center(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 1220),
+        constraints: BoxConstraints(maxWidth: maxWidth),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -88,30 +90,44 @@ class DiscoveryLayout extends StatelessWidget {
 }
 
 class DiscoveryHeading extends StatelessWidget {
-  const DiscoveryHeading(this.eyebrow, this.title, this.subtitle, {super.key});
+  const DiscoveryHeading(
+    this.eyebrow,
+    this.title,
+    this.subtitle, {
+    this.action,
+    super.key,
+  });
   final String eyebrow, title, subtitle;
+  final Widget? action;
   @override
   Widget build(BuildContext context) => Padding(
     padding: const EdgeInsets.only(bottom: 24),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          eyebrow,
-          style: tx(11, weight: FontWeight.w600, color: C.green),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          title,
-          style: tx(
-            MediaQuery.sizeOf(context).width < 600 ? 30 : 38,
-            weight: FontWeight.w600,
-            height: 1.15,
-          ),
-        ),
-        const SizedBox(height: 10),
-        Text(subtitle, style: tx(15, color: C.muted)),
-      ],
+    child: LayoutBuilder(
+      builder: (context, box) {
+        final heading = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: tx(32, weight: FontWeight.w700, height: 1.2)),
+            const SizedBox(height: 10),
+            Text(subtitle, style: tx(15, color: C.muted)),
+          ],
+        );
+        if (action == null) return heading;
+        if (box.maxWidth >= 780) {
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(child: heading),
+              const SizedBox(width: 24),
+              action!,
+            ],
+          );
+        }
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [heading, const SizedBox(height: 20), action!],
+        );
+      },
     ),
   );
 }
@@ -141,12 +157,8 @@ class DiscoveryTabs extends StatelessWidget {
             label: Text(labels[i]),
             selected: selected == i,
             showCheckmark: false,
-            selectedColor: C.dark,
-            labelStyle: tx(
-              13,
-              weight: FontWeight.w500,
-              color: selected == i ? Colors.white : C.ink,
-            ),
+            selectedColor: C.mint,
+            labelStyle: tx(13, weight: FontWeight.w500, color: C.ink),
             onSelected: (_) => onSelect(i),
           ),
       ],

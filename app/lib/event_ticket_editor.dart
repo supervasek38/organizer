@@ -89,10 +89,7 @@ class _EventTicketDialogState extends State<EventTicketDialog> {
       controller: controller,
       maxLength: max,
       keyboardType: number ? TextInputType.number : TextInputType.text,
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
-      ),
+      decoration: InputDecoration(labelText: label),
     ),
   );
   @override

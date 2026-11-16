@@ -797,7 +797,7 @@ class EventsScreenState extends State<EventsScreen> {
         const SizedBox(height: 16),
         if (store.isCancelled(event.id)) ...[
           Surface(
-            color: const Color(0xFFFFF3E8),
+            color: C.soft,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

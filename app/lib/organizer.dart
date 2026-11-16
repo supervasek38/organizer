@@ -153,6 +153,7 @@ class OrganizerWorkspaceState extends State<OrganizerWorkspace> {
   EventsStore get store => widget.store;
   void openToday() => openSection(0);
   void openSection(int value) {
+    ScaffoldMessenger.maybeOf(context)?.clearSnackBars();
     widget.onTodayChanged?.call(value == 0);
     editorKey.currentState?.save();
     setState(() {
@@ -165,6 +166,7 @@ class OrganizerWorkspaceState extends State<OrganizerWorkspace> {
   }
 
   void edit(EventDraft draft) {
+    ScaffoldMessenger.maybeOf(context)?.clearSnackBars();
     widget.onTodayChanged?.call(false);
     editorKey.currentState?.save();
     setState(() {
@@ -233,7 +235,6 @@ class OrganizerWorkspaceState extends State<OrganizerWorkspace> {
               decoration: InputDecoration(
                 labelText: 'Причина отмены *',
                 errorText: validation,
-                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),
@@ -273,29 +274,71 @@ class OrganizerWorkspaceState extends State<OrganizerWorkspace> {
     id: 'organizer-material-picker',
     children: [
       const DiscoveryHeading(
-        'ОРГАНИЗАТОР',
+        'Материалы',
         'Материалы мероприятий',
-        'Выберите встречу, чтобы загрузить файлы или посмотреть историю изменений.',
+        'Презентации, записи и полезные файлы для ваших участников.',
       ),
       for (final event in store.events)
         Padding(
-          padding: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.only(bottom: 16),
           child: Surface(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(event.title, style: tx(20, weight: FontWeight.w600)),
-                const SizedBox(height: 8),
-                Text(
-                  '${store.materialsFor(event.id).length} файлов${store.isCancelled(event.id) ? " · событие отменено" : ""}',
-                  style: tx(14, color: C.muted),
-                ),
-                const SizedBox(height: 12),
-                OutlinedButton(
+            child: LayoutBuilder(
+              builder: (context, box) {
+                final info = Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 52,
+                      height: 52,
+                      decoration: BoxDecoration(
+                        color: C.mint,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: const Icon(
+                        Icons.folder_open_rounded,
+                        color: C.ink,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            event.title,
+                            style: tx(20, weight: FontWeight.w600),
+                          ),
+                          const SizedBox(height: 6),
+                          Text(event.date, style: tx(13, color: C.muted)),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Файлов: ${store.materialsFor(event.id).length}${store.isCancelled(event.id) ? " · событие отменено" : ""}',
+                            style: tx(13, color: C.muted),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+                final action = OutlinedButton.icon(
                   onPressed: () => setState(() => materialsEventId = event.id),
-                  child: const Text('Открыть материалы'),
-                ),
-              ],
+                  label: const Text('Открыть материалы'),
+                  icon: const Icon(Icons.arrow_forward_rounded, size: 18),
+                );
+                if (box.maxWidth < 680) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [info, const SizedBox(height: 20), action],
+                  );
+                }
+                return Row(
+                  children: [
+                    Expanded(child: info),
+                    const SizedBox(width: 24),
+                    action,
+                  ],
+                );
+              },
             ),
           ),
         ),
@@ -320,79 +363,6 @@ class OrganizerWorkspaceState extends State<OrganizerWorkspace> {
             onDraft: edit,
           );
         }
-        final wide = box.maxWidth >= 1050;
-        final menu = [
-          ('Сегодня', Icons.space_dashboard_outlined),
-          ('Мои мероприятия', Icons.event_note_outlined),
-          ('Участники', Icons.people_outline),
-          ('Материалы', Icons.folder_outlined),
-          ('Уведомления', Icons.notifications_outlined),
-          ('Партнёрства', Icons.handshake_outlined),
-        ];
-        final nav = wide
-            ? SizedBox(
-                width: 232,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const SizedBox(height: 12),
-                      Text(
-                        'MONTAS EVENTS',
-                        style: tx(11, weight: FontWeight.w600, color: C.green),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Организатор',
-                        style: tx(22, weight: FontWeight.w600),
-                      ),
-                      const SizedBox(height: 24),
-                      for (var i = 0; i < menu.length; i++)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 8),
-                          child: ListTile(
-                            key: ValueKey('organizer-nav-$i'),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(14),
-                            ),
-                            selected: section == i,
-                            selectedTileColor: const Color(0xFFEAFBD9),
-                            leading: Icon(menu[i].$2, size: 20),
-                            title: Text(
-                              menu[i].$1,
-                              style: tx(13, weight: FontWeight.w500),
-                            ),
-                            onTap: () => openSection(i),
-                          ),
-                        ),
-                      const SizedBox(height: 32),
-                      const Divider(),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Наталья Орлова',
-                        style: tx(14, weight: FontWeight.w600),
-                      ),
-                      Text(
-                        'Команда MONTAS Events\nДемонстрационная организация',
-                        style: tx(12, color: C.muted),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            : Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                child: DiscoveryTabs(
-                  id: 'organizer-nav',
-                  labels: menu.map((e) => e.$1).toList(),
-                  selected: section,
-                  onSelect: openSection,
-                ),
-              );
         final draft = store.drafts.where((d) => d.id == editingId).firstOrNull;
         final content = draft != null
             ? OrganizerEditor(
@@ -465,21 +435,18 @@ class OrganizerWorkspaceState extends State<OrganizerWorkspace> {
                 ],
               )
             : overview(section == 0);
-        return wide
-            ? Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  nav,
-                  const VerticalDivider(width: 1),
-                  Expanded(child: content),
-                ],
-              )
-            : Column(
-                children: [
-                  nav,
-                  Expanded(child: content),
-                ],
-              );
+        return OrganizerShell(
+          store: store,
+          selected: section,
+          title: draft != null
+              ? 'Редактирование события'
+              : managedEventId != null
+              ? 'Управление событием'
+              : OrganizerShell.menu[section].$1,
+          onSection: openSection,
+          onCatalog: widget.onCatalog,
+          child: content,
+        );
       },
     ),
   );
@@ -493,56 +460,13 @@ class OrganizerWorkspaceState extends State<OrganizerWorkspace> {
         today
             ? 'Ваши события, подготовка и регистрации в одном месте.'
             : 'От первого черновика до встречи с участниками.',
-      ),
-      Wrap(
-        spacing: 12,
-        runSpacing: 12,
-        children: [
-          FilledButton.icon(
-            key: const ValueKey('organizer-create'),
-            onPressed: create,
-            icon: const Icon(Icons.add),
-            label: const Text('Создать мероприятие'),
-          ),
-          if (today)
-            OutlinedButton(
-              onPressed: () => openSection(1),
-              child: const Text('Все мероприятия'),
-            ),
-          if (today)
-            OutlinedButton.icon(
-              key: const ValueKey('organizer-partners-summary'),
-              onPressed: () => openPartnerships(),
-              icon: const Icon(Icons.handshake_outlined),
-              label: Text(
-                'Партнёрства · ${store.partnerRequests.length} запросов',
-              ),
-            ),
-        ],
-      ),
-      const SizedBox(height: 24),
-      if (today) ...[
-        DiscoveryGrid(
-          children: [
-            metric(
-              'Опубликовано',
-              '${store.events.where((e) => !store.isCancelled(e.id)).length}',
-              'Доступны в афише',
-            ),
-            metric(
-              'Черновики',
-              '${store.drafts.length}',
-              'Видны только организатору',
-            ),
-            metric(
-              'Участники',
-              '${store.registrations.where((r) => !r.cancelled).length}',
-              'Активные демо-регистрации',
-            ),
-          ],
+        action: FilledButton.icon(
+          key: const ValueKey('organizer-create'),
+          onPressed: create,
+          icon: const Icon(Icons.add, size: 20),
+          label: const Text('Создать мероприятие'),
         ),
-        const SizedBox(height: 24),
-      ],
+      ),
       if (store.drafts.isNotEmpty) ...[
         Text('Продолжить подготовку', style: tx(22, weight: FontWeight.w600)),
         const SizedBox(height: 12),
@@ -610,7 +534,7 @@ class OrganizerWorkspaceState extends State<OrganizerWorkspace> {
                     Text(event.title, style: tx(21, weight: FontWeight.w600)),
                     const SizedBox(height: 6),
                     Text(
-                      '${event.date}\n${event.format}',
+                      '${event.date} · ${event.format}',
                       style: tx(13, color: C.muted),
                     ),
                     const SizedBox(height: 12),
@@ -624,21 +548,13 @@ class OrganizerWorkspaceState extends State<OrganizerWorkspace> {
                       spacing: 8,
                       runSpacing: 8,
                       children: [
-                        OutlinedButton(
+                        TextButton(
                           key: ValueKey('organizer-participants-${event.id}'),
                           onPressed: () => participants(event),
                           child: const Text('Участники'),
                         ),
-                        FilledButton(
-                          key: ValueKey('organizer-manage-${event.id}'),
-                          onPressed: () => setState(() {
-                            managedEventId = event.id;
-                            section = 1;
-                          }),
-                          child: const Text('Управление событием'),
-                        ),
                         if (!store.isCancelled(event.id))
-                          OutlinedButton.icon(
+                          TextButton.icon(
                             key: ValueKey('organizer-partners-${event.id}'),
                             onPressed: () =>
                                 openPartnerships(eventId: event.id),
@@ -653,13 +569,13 @@ class OrganizerWorkspaceState extends State<OrganizerWorkspace> {
                             ),
                           ),
                         if (widget.onPublicEvent != null)
-                          OutlinedButton(
+                          TextButton(
                             key: ValueKey('organizer-public-${event.id}'),
                             onPressed: () => widget.onPublicEvent!(event),
                             child: const Text('Открыть как пользователь'),
                           ),
                         if (!store.isCancelled(event.id))
-                          OutlinedButton(
+                          TextButton(
                             key: ValueKey('organizer-update-${event.id}'),
                             onPressed: () {
                               final draft = store.editPublished(event);
@@ -667,7 +583,7 @@ class OrganizerWorkspaceState extends State<OrganizerWorkspace> {
                             },
                             child: const Text('Редактировать'),
                           ),
-                        OutlinedButton(
+                        TextButton(
                           key: ValueKey('organizer-materials-${event.id}'),
                           onPressed: () => setState(() {
                             section = 3;
@@ -684,10 +600,24 @@ class OrganizerWorkspaceState extends State<OrganizerWorkspace> {
                           ),
                       ],
                     ),
+                    const SizedBox(height: 16),
+                    FilledButton.icon(
+                      key: ValueKey('organizer-manage-${event.id}'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: C.lime,
+                        foregroundColor: C.ink,
+                      ),
+                      onPressed: () => setState(() {
+                        managedEventId = event.id;
+                        section = 1;
+                      }),
+                      icon: const Icon(Icons.arrow_forward, size: 18),
+                      label: const Text('Управление событием'),
+                    ),
                   ],
                 );
                 final photo = ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(20),
                   child: AspectRatio(
                     aspectRatio: 4 / 3,
                     child: Image.asset(
@@ -701,7 +631,7 @@ class OrganizerWorkspaceState extends State<OrganizerWorkspace> {
                     : Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(width: 160, child: photo),
+                          SizedBox(width: 180, child: photo),
                           const SizedBox(width: 24),
                           Expanded(child: info),
                         ],
@@ -746,10 +676,7 @@ class OrganizerWorkspaceState extends State<OrganizerWorkspace> {
           ),
           initialValue: participantsEventId ?? 'all',
           isExpanded: true,
-          decoration: const InputDecoration(
-            labelText: 'Мероприятие',
-            border: OutlineInputBorder(),
-          ),
+          decoration: const InputDecoration(labelText: 'Мероприятие'),
           items: [
             const DropdownMenuItem(
               value: 'all',
@@ -800,51 +727,86 @@ class OrganizerWorkspaceState extends State<OrganizerWorkspace> {
             child: Surface(
               key: ValueKey('organizer-registration-${r.id}'),
               padding: 20,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 8,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final identity = Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Tag(
-                        r.cancelledByEvent
-                            ? 'Событие отменено'
-                            : r.cancelled
-                            ? 'Отменена'
-                            : 'Записан',
-                        green: !r.cancelled,
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 8,
+                        children: [
+                          Tag(
+                            r.cancelledByEvent
+                                ? 'Событие отменено'
+                                : r.cancelled
+                                ? 'Отменена'
+                                : 'Записан',
+                            green: !r.cancelled,
+                          ),
+                          Text(r.id, style: tx(13, color: C.muted)),
+                        ],
                       ),
-                      Text(r.id, style: tx(13, color: C.muted)),
+                      const SizedBox(height: 12),
+                      Text(
+                        r.participantName,
+                        style: tx(20, weight: FontWeight.w600),
+                      ),
+                      Text(r.participantEmail, style: tx(13, color: C.muted)),
                     ],
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    r.participantName,
-                    style: tx(20, weight: FontWeight.w600),
-                  ),
-                  Text(r.participantEmail, style: tx(13, color: C.muted)),
-                  const SizedBox(height: 12),
-                  Text(
-                    (store.byId(r.event.id) ?? r.event).title,
-                    style: tx(16, weight: FontWeight.w600),
-                  ),
-                  Text(
-                    (store.byId(r.event.id) ?? r.event).date,
-                    style: tx(13, color: C.muted),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    '${r.ticket.name} · ${discoveryMoney(r.ticket.price)}',
-                    style: tx(14),
-                  ),
-                  Text(
-                    r.ticket.price == 0
-                        ? 'Бесплатная регистрация'
-                        : 'Демо-регистрация · оплата не проводилась',
-                    style: tx(12, color: C.muted),
-                  ),
-                ],
+                  );
+                  final participation = Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        (store.byId(r.event.id) ?? r.event).title,
+                        style: tx(16, weight: FontWeight.w600),
+                      ),
+                      Text(
+                        (store.byId(r.event.id) ?? r.event).date,
+                        style: tx(13, color: C.muted),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        '${r.ticket.name} · ${discoveryMoney(r.ticket.price)}',
+                        style: tx(14),
+                      ),
+                      Text(
+                        r.ticket.price == 0
+                            ? 'Бесплатная регистрация'
+                            : 'Демо-регистрация · оплата не проводилась',
+                        style: tx(12, color: C.muted),
+                      ),
+                    ],
+                  );
+                  if (constraints.maxWidth < 720) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        identity,
+                        const SizedBox(height: 16),
+                        participation,
+                      ],
+                    );
+                  }
+                  return Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(flex: 5, child: identity),
+                      const SizedBox(width: 24),
+                      Expanded(
+                        flex: 6,
+                        child: Container(
+                          padding: const EdgeInsets.only(left: 24),
+                          decoration: const BoxDecoration(
+                            border: Border(left: BorderSide(color: C.line)),
+                          ),
+                          child: participation,
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ),
@@ -1087,7 +1049,6 @@ class OrganizerEditorState extends State<OrganizerEditor> {
         alignLabelWithHint: true,
         filled: true,
         fillColor: Colors.white,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       ),
       onChanged: (_) {
         if (notice != null) setState(() => notice = null);
@@ -1100,6 +1061,7 @@ class OrganizerEditorState extends State<OrganizerEditor> {
     final d = snapshot();
     return DiscoveryLayout(
       id: 'organizer-editor-${d.id}-$step',
+      maxWidth: 960,
       children: [
         Align(
           alignment: Alignment.centerLeft,
@@ -1159,10 +1121,7 @@ class OrganizerEditorState extends State<OrganizerEditor> {
                   DropdownButtonFormField<String>(
                     initialValue: category,
                     isExpanded: true,
-                    decoration: const InputDecoration(
-                      labelText: 'Категория',
-                      border: OutlineInputBorder(),
-                    ),
+                    decoration: const InputDecoration(labelText: 'Категория'),
                     items:
                         [
                               'Открытая встреча',
@@ -1420,7 +1379,7 @@ class OrganizerEditorState extends State<OrganizerEditor> {
         if (step == 3) ...[
           if (d.errors.isNotEmpty)
             Surface(
-              color: const Color(0xFFFFF3E8),
+              color: C.soft,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

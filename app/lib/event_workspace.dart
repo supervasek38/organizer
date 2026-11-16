@@ -68,7 +68,7 @@ class _OrganizerEventWorkspaceState extends State<OrganizerEventWorkspace> {
       children: [
         Text(title, style: tx(13, color: C.muted)),
         const SizedBox(height: 10),
-        Text(value, style: tx(30, weight: FontWeight.w600)),
+        Text(value, style: tx(40, weight: FontWeight.w300)),
         const SizedBox(height: 6),
         Text(caption, style: tx(12, color: C.muted)),
       ],
@@ -371,7 +371,7 @@ class _OrganizerEventWorkspaceState extends State<OrganizerEventWorkspace> {
       return Column(
         children: [
           Container(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+            padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
             decoration: const BoxDecoration(
               color: Colors.white,
               border: Border(bottom: BorderSide(color: C.line)),
@@ -417,11 +417,8 @@ class _OrganizerEventWorkspaceState extends State<OrganizerEventWorkspace> {
                             key: ValueKey('event-workspace-tab-$i'),
                             label: Text(tabs[i]),
                             selected: tab == i,
-                            selectedColor: C.dark,
-                            labelStyle: tx(
-                              13,
-                              color: tab == i ? Colors.white : C.ink,
-                            ),
+                            selectedColor: C.mint,
+                            labelStyle: tx(13, color: C.ink),
                             showCheckmark: false,
                             onSelected: (_) => setState(() => tab = i),
                           ),
@@ -474,7 +471,6 @@ class _EventRosterState extends State<EventRoster> {
           decoration: const InputDecoration(
             hintText: 'Имя, почта или номер записи',
             prefixIcon: Icon(Icons.search),
-            border: OutlineInputBorder(),
           ),
         ),
         const SizedBox(height: 12),

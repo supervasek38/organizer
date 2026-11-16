@@ -16,17 +16,19 @@ part 'event_operations.dart';
 part 'partnerships.dart';
 part 'partnerships_views.dart';
 part 'organizer_today.dart';
+part 'organizer_shell.dart';
 
 void main() => runApp(const MontasApp(seedDemo: true));
 
 abstract final class C {
   static const canvas = Color(0xFFF5F7F6);
   static const ink = Color(0xFF0B0F0E);
-  static const muted = Color(0xFF66716B);
+  static const muted = Color(0xFF5B6660);
   static const line = Color(0xFFE6EAE4);
-  static const soft = Color(0xFFF2F4EF);
-  static const dark = Color(0xFF0A2019);
-  static const green = Color(0xFF008F4C);
+  static const soft = Color(0xFFF5F7F6);
+  static const dark = Color(0xFF0B0F0E);
+  static const green = Color(0xFF086136);
+  static const mint = Color(0xFFDEF8E2);
   static const lime = Color(0xFFB6FF00);
 }
 
@@ -57,12 +59,94 @@ class MontasApp extends StatelessWidget {
       fontFamily: 'Onest',
       scaffoldBackgroundColor: C.canvas,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: C.green,
+        seedColor: C.ink,
+        secondary: C.ink,
+        secondaryContainer: C.mint,
+        onSecondaryContainer: C.ink,
+        surfaceTint: Colors.transparent,
         primary: C.dark,
         surface: Colors.white,
       ),
       textTheme: TextTheme(bodyMedium: tx(14), bodyLarge: tx(15)),
       dividerColor: C.line,
+      visualDensity: VisualDensity.standard,
+      snackBarTheme: SnackBarThemeData(
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: C.ink,
+        contentTextStyle: tx(14, color: Colors.white),
+        insetPadding: const EdgeInsets.fromLTRB(24, 12, 24, 100),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: Colors.white,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 18,
+        ),
+        labelStyle: tx(14, color: C.muted),
+        hintStyle: tx(14, color: C.muted),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: C.line),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: C.line),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: C.ink, width: 1.5),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFFBA1A1A)),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: C.ink,
+          foregroundColor: Colors.white,
+          minimumSize: const Size(44, 48),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          textStyle: tx(14, weight: FontWeight.w600),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: C.ink,
+          backgroundColor: Colors.white,
+          minimumSize: const Size(44, 48),
+          side: const BorderSide(color: C.line),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          textStyle: tx(14, weight: FontWeight.w500),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+      ),
+      chipTheme: ChipThemeData(
+        backgroundColor: Colors.white,
+        selectedColor: C.mint,
+        side: const BorderSide(color: C.line),
+        labelStyle: tx(13, weight: FontWeight.w500),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+      ),
+      popupMenuTheme: PopupMenuThemeData(
+        color: Colors.white,
+        surfaceTintColor: Colors.transparent,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      ),
+
       tooltipTheme: TooltipThemeData(
         textStyle: tx(12, color: Colors.white),
         decoration: BoxDecoration(
@@ -73,6 +157,10 @@ class MontasApp extends StatelessWidget {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: C.dark,
+          minimumSize: const Size(44, 44),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
           textStyle: const TextStyle(
             fontFamily: 'Onest',
             fontWeight: FontWeight.w600,
@@ -99,7 +187,7 @@ class Surface extends StatelessWidget {
     padding: EdgeInsets.all(padding),
     decoration: BoxDecoration(
       color: color,
-      borderRadius: BorderRadius.circular(26),
+      borderRadius: BorderRadius.circular(24),
       border: color == Colors.white ? Border.all(color: C.line) : null,
       boxShadow: color == Colors.white
           ? const [
@@ -120,34 +208,21 @@ class PrimaryButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   @override
-  Widget build(BuildContext context) => DecoratedBox(
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(30),
-      gradient: onPressed == null
-          ? null
-          : const LinearGradient(
-              colors: [Color(0xFFC8FF4D), Color(0xFF5CEB7A)],
-            ),
-      color: onPressed == null ? C.soft : null,
+  Widget build(BuildContext context) => FilledButton(
+    onPressed: onPressed,
+    style: FilledButton.styleFrom(
+      backgroundColor: C.lime,
+      foregroundColor: C.ink,
+      disabledBackgroundColor: C.soft,
+      disabledForegroundColor: C.muted,
+      minimumSize: const Size(double.infinity, 48),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
     ),
-    child: TextButton(
-      onPressed: onPressed,
-      style: TextButton.styleFrom(
-        minimumSize: const Size(double.infinity, 50),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-        shape: const StadiumBorder(),
-        foregroundColor: C.ink,
-        disabledForegroundColor: C.muted,
-      ),
-      child: Text(
-        label,
-        textAlign: TextAlign.center,
-        style: const TextStyle(
-          fontFamily: 'Onest',
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
+    child: Text(
+      label,
+      textAlign: TextAlign.center,
+      style: tx(15, weight: FontWeight.w600),
     ),
   );
 }
@@ -185,12 +260,12 @@ class Tag extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
     decoration: BoxDecoration(
-      color: green ? const Color(0xFFEAFBD9) : C.soft,
+      color: green ? C.mint : C.soft,
       borderRadius: BorderRadius.circular(30),
     ),
     child: Text(
       text,
-      style: tx(11, color: green ? C.green : C.muted, weight: FontWeight.w500),
+      style: tx(11, color: green ? C.ink : C.muted, weight: FontWeight.w500),
     ),
   );
 }

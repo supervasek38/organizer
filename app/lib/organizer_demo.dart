@@ -13,7 +13,6 @@ class _OrganizerDemoState extends State<OrganizerDemo> {
   final store = EventsStore();
   final catalogKey = GlobalKey<EventsScreenState>();
   bool catalogVisible = false;
-  bool todayVisible = true;
 
   void showCatalog() {
     catalogKey.currentState?.showCatalog();
@@ -42,7 +41,7 @@ class _OrganizerDemoState extends State<OrganizerDemo> {
     body: SafeArea(
       child: Column(
         children: [
-          if (catalogVisible || !todayVisible)
+          if (catalogVisible)
             Container(
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 18),
@@ -55,7 +54,7 @@ class _OrganizerDemoState extends State<OrganizerDemo> {
                 runSpacing: 4,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  Text('MONTAS', style: tx(24, weight: FontWeight.w800)),
+                  const OrganizerWordmark(),
                   Text('Мероприятия', style: tx(14, color: C.muted)),
                   Wrap(
                     spacing: 8,
@@ -87,8 +86,6 @@ class _OrganizerDemoState extends State<OrganizerDemo> {
                   store: store,
                   onPublicEvent: openEvent,
                   onCatalog: showCatalog,
-                  onTodayChanged: (value) =>
-                      setState(() => todayVisible = value),
                 ),
                 EventsScreen(key: catalogKey, store: store),
               ],

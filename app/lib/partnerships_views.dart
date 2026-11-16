@@ -28,7 +28,11 @@ Widget partnerCopy(String value) => Padding(
 );
 Widget partnerAction(String key, String label, VoidCallback? onTap) => Padding(
   padding: const EdgeInsets.only(top: 12),
-  child: PrimaryButton(label, onTap, key: ValueKey(key)),
+  child: OutlinedButton(
+    key: ValueKey(key),
+    onPressed: onTap,
+    child: Text(label, textAlign: TextAlign.center),
+  ),
 );
 
 class PartnershipsScreen extends StatefulWidget {
@@ -289,7 +293,7 @@ class _PartnershipsScreenState extends State<PartnershipsScreen> {
               runSpacing: 8,
               children: [for (final need in partnerNeeds) Tag(need)],
             ),
-          ], color: const Color(0xFFEAF3ED)),
+          ], color: C.mint),
         for (final r in records)
           Padding(
             padding: const EdgeInsets.only(bottom: 16),
@@ -381,7 +385,7 @@ class _PartnershipsScreenState extends State<PartnershipsScreen> {
                   }
                 },
               ),
-          ], color: const Color(0xFFFFF1D9)),
+          ], color: C.soft),
           const SizedBox(height: 20),
         ],
         DiscoveryColumns(
@@ -438,14 +442,14 @@ class _PartnershipsScreenState extends State<PartnershipsScreen> {
                         ? () => result(store.receivePartnerOffers(r, r.version))
                         : null,
                   ),
-                ], color: const Color(0xFFEAF3ED)),
+                ], color: C.mint),
               if (r.stage == PartnerStage.agreed)
                 partnerPanel('Партнёрство согласовано', [
                   partnerCopy(
                     'Следующий шаг — обсудить материалы и организационные детали с менеджером MONTAS. '
                     'Договоры и реальные платежи в этом прототипе не оформляются.',
                   ),
-                ], color: const Color(0xFFEAF3ED)),
+                ], color: C.mint),
               if (r.offers.isNotEmpty) ...[
                 const SizedBox(height: 20),
                 Text(
@@ -660,10 +664,7 @@ class _PartnerBriefEditorState extends State<PartnerBriefEditor> {
           : email
           ? TextInputType.emailAddress
           : TextInputType.text,
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
-      ),
+      decoration: InputDecoration(labelText: label),
     ),
   );
   void fillDemo() {
@@ -719,10 +720,7 @@ class _PartnerBriefEditorState extends State<PartnerBriefEditor> {
         key: ValueKey('partner-need-$need'),
         initialValue: need,
         isExpanded: true,
-        decoration: const InputDecoration(
-          labelText: 'Какое партнёрство нужно',
-          border: OutlineInputBorder(),
-        ),
+        decoration: const InputDecoration(labelText: 'Какое партнёрство нужно'),
         items: [
           for (final item in partnerNeeds)
             DropdownMenuItem(value: item, child: Text(item)),
@@ -794,7 +792,6 @@ class _PartnerMessageEditorState extends State<PartnerMessageEditor> {
         onChanged: (_) => setState(() {}),
         decoration: InputDecoration(
           labelText: widget.decline ? 'Причина отказа' : 'Вопрос менеджеру',
-          border: const OutlineInputBorder(),
         ),
       ),
       partnerCopy(

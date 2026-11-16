@@ -1,66 +1,5 @@
 part of 'main.dart';
 
-/// The brand-book pilot is intentionally local to Today, not the app theme.
-abstract final class OrganizerTodayStyle {
-  static const mint = Color(0xFFDEF8E2);
-  static const muted = Color(0xFF5B6660);
-  static const darkEnd = Color(0xFF086136);
-  static const radius = 24.0;
-  static TextStyle text(
-    double size, {
-    Color color = C.ink,
-    FontWeight weight = FontWeight.w400,
-  }) => tx(size, color: color, weight: weight, height: size >= 24 ? 1.2 : 1.45);
-}
-
-class OrganizerWordmark extends StatelessWidget {
-  const OrganizerWordmark({super.key});
-  @override
-  Widget build(BuildContext context) => Semantics(
-    label: 'MONTAS',
-    image: true,
-    child: ExcludeSemantics(
-      child: SizedBox(
-        width: 160,
-        height: 34,
-        child: FittedBox(
-          alignment: Alignment.centerLeft,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Text(
-                'MONT',
-                style: TextStyle(
-                  fontFamily: 'PlusJakartaSans',
-                  fontWeight: FontWeight.w300,
-                  fontSize: 56,
-                  height: 64 / 56,
-                  letterSpacing: 13.44,
-                  color: C.ink,
-                ),
-              ),
-              const SizedBox(width: 14),
-              SvgPicture.asset('assets/brand/mark.svg', width: 40, height: 42),
-              const SizedBox(width: 14),
-              const Text(
-                'S',
-                style: TextStyle(
-                  fontFamily: 'PlusJakartaSans',
-                  fontWeight: FontWeight.w300,
-                  fontSize: 56,
-                  height: 64 / 56,
-                  letterSpacing: 13.44,
-                  color: C.ink,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
-}
-
 class OrganizerTodayScreen extends StatelessWidget {
   const OrganizerTodayScreen({
     required this.store,
@@ -81,15 +20,6 @@ class OrganizerTodayScreen extends StatelessWidget {
   final ValueChanged<EventDraft> onDraft;
   final ValueChanged<MontasEvent>? onPublic;
   final VoidCallback? onCatalog;
-  static const menu = [
-    ('Сегодня', Icons.wb_sunny_outlined),
-    ('Мои мероприятия', Icons.calendar_month_outlined),
-    ('Участники', Icons.people_outline),
-    ('Материалы', Icons.folder_open_outlined),
-    ('Уведомления', Icons.notifications_none_rounded),
-    ('Партнёрства', Icons.handshake_outlined),
-  ];
-
   List<MontasEvent> get upcoming {
     final anchor = DateTime(2026, 10, 20);
     final result = store.events
@@ -116,7 +46,7 @@ class OrganizerTodayScreen extends StatelessWidget {
     padding: EdgeInsets.all(padding),
     decoration: BoxDecoration(
       color: color,
-      borderRadius: BorderRadius.circular(OrganizerTodayStyle.radius),
+      borderRadius: BorderRadius.circular(OrganizerStyle.radius),
       border: color == Colors.white ? Border.all(color: C.line) : null,
       boxShadow: color == Colors.white
           ? const [
@@ -151,7 +81,7 @@ class OrganizerTodayScreen extends StatelessWidget {
       minimumSize: const Size(44, 48),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      textStyle: OrganizerTodayStyle.text(15, weight: FontWeight.w600),
+      textStyle: OrganizerStyle.text(15, weight: FontWeight.w600),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
@@ -174,7 +104,7 @@ class OrganizerTodayScreen extends StatelessWidget {
       foregroundColor: C.ink,
       minimumSize: const Size(44, 44),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      textStyle: OrganizerTodayStyle.text(13, weight: FontWeight.w500),
+      textStyle: OrganizerStyle.text(13, weight: FontWeight.w500),
     ),
     child: Row(
       mainAxisSize: MainAxisSize.min,
@@ -182,180 +112,6 @@ class OrganizerTodayScreen extends StatelessWidget {
         Flexible(child: Text(label)),
         const SizedBox(width: 8),
         Icon(icon, size: 18),
-      ],
-    ),
-  );
-
-  Widget navItem(int i, bool wide) => Semantics(
-    selected: i == 0,
-    child: TextButton(
-      key: ValueKey(wide ? 'organizer-nav-$i' : 'organizer-nav-tab-$i'),
-      onPressed: () => onSection(i),
-      style: TextButton.styleFrom(
-        foregroundColor: i == 0 ? C.ink : OrganizerTodayStyle.muted,
-        backgroundColor: i == 0 ? C.canvas : Colors.transparent,
-        padding: EdgeInsets.symmetric(horizontal: wide ? 16 : 14, vertical: 14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      ),
-      child: wide
-          ? Row(
-              children: [
-                Icon(menu[i].$2, size: 22),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    menu[i].$1,
-                    style: OrganizerTodayStyle.text(
-                      15,
-                      weight: i == 0 ? FontWeight.w600 : FontWeight.w400,
-                    ),
-                  ),
-                ),
-                if (i == 0) const Icon(Icons.circle, size: 6),
-              ],
-            )
-          : Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(menu[i].$2, size: 22),
-                const SizedBox(height: 4),
-                Text(menu[i].$1, style: OrganizerTodayStyle.text(12)),
-              ],
-            ),
-    ),
-  );
-
-  Widget sidebar() => Container(
-    width: 240,
-    decoration: const BoxDecoration(
-      color: Colors.white,
-      border: Border(right: BorderSide(color: C.line)),
-    ),
-    child: LayoutBuilder(
-      builder: (context, size) => SingleChildScrollView(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(minHeight: size.maxHeight),
-          child: IntrinsicHeight(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 12),
-                    child: OrganizerWordmark(),
-                  ),
-                  const SizedBox(height: 12),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 12),
-                    child: Text(
-                      'Кабинет организатора',
-                      style: OrganizerTodayStyle.text(
-                        13,
-                        color: OrganizerTodayStyle.muted,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-                  for (var i = 0; i < menu.length; i++)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: navItem(i, true),
-                    ),
-                  const Spacer(),
-                  const SizedBox(height: 40),
-                  const Divider(height: 1),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      avatar(),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Наталья Орлова',
-                              style: OrganizerTodayStyle.text(
-                                15,
-                                weight: FontWeight.w600,
-                              ),
-                            ),
-                            Text(
-                              'MONTAS Events',
-                              style: OrganizerTodayStyle.text(
-                                13,
-                                color: OrganizerTodayStyle.muted,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-    ),
-  );
-
-  Widget avatar() => CircleAvatar(
-    radius: 22,
-    backgroundColor: OrganizerTodayStyle.mint,
-    child: Text(
-      'НО',
-      style: OrganizerTodayStyle.text(13, weight: FontWeight.w600),
-    ),
-  );
-
-  Widget header(bool wide) => Container(
-    padding: EdgeInsets.symmetric(horizontal: wide ? 32 : 24, vertical: 16),
-    decoration: const BoxDecoration(
-      color: Colors.white,
-      border: Border(bottom: BorderSide(color: C.line)),
-    ),
-    child: Row(
-      children: [
-        if (wide)
-          Text(
-            'Рабочее пространство / Сегодня',
-            style: OrganizerTodayStyle.text(
-              13,
-              color: OrganizerTodayStyle.muted,
-            ),
-          )
-        else
-          const OrganizerWordmark(),
-        const Spacer(),
-        if (wide) ...[
-          link(
-            'Каталог мероприятий',
-            onCatalog,
-            id: 'organizer-demo-catalog',
-            icon: Icons.north_east_rounded,
-          ),
-          const SizedBox(width: 20),
-        ] else
-          IconButton(
-            key: const ValueKey('organizer-demo-catalog'),
-            tooltip: 'Каталог мероприятий',
-            onPressed: onCatalog,
-            icon: const Icon(Icons.open_in_new_rounded, size: 20),
-          ),
-        IconButton(
-          tooltip:
-              'Уведомления${store.partnerUnread > 0 ? ": ${store.partnerUnread} непрочитанных" : ""}',
-          onPressed: () => onSection(4),
-          icon: Badge(
-            isLabelVisible: store.partnerUnread > 0,
-            label: Text('${store.partnerUnread}'),
-            backgroundColor: C.ink,
-            child: const Icon(Icons.notifications_none_rounded, size: 22),
-          ),
-        ),
       ],
     ),
   );
@@ -368,10 +124,7 @@ class OrganizerTodayScreen extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: OrganizerTodayStyle.text(
-                  13,
-                  color: OrganizerTodayStyle.muted,
-                ),
+                style: OrganizerStyle.text(13, color: OrganizerStyle.muted),
               ),
               const SizedBox(height: 12),
               Row(
@@ -380,10 +133,7 @@ class OrganizerTodayScreen extends StatelessWidget {
                   Expanded(
                     child: Text(
                       '$number',
-                      style: OrganizerTodayStyle.text(
-                        40,
-                        weight: FontWeight.w300,
-                      ),
+                      style: OrganizerStyle.text(40, weight: FontWeight.w300),
                     ),
                   ),
                   IconButton(
@@ -396,10 +146,7 @@ class OrganizerTodayScreen extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 description,
-                style: OrganizerTodayStyle.text(
-                  13,
-                  color: OrganizerTodayStyle.muted,
-                ),
+                style: OrganizerStyle.text(13, color: OrganizerStyle.muted),
               ),
             ],
           ),
@@ -410,9 +157,7 @@ class OrganizerTodayScreen extends StatelessWidget {
     clipBehavior: Clip.antiAlias,
     decoration: BoxDecoration(
       borderRadius: BorderRadius.circular(32),
-      gradient: const LinearGradient(
-        colors: [C.ink, OrganizerTodayStyle.darkEnd],
-      ),
+      gradient: const LinearGradient(colors: [C.ink, OrganizerStyle.darkEnd]),
     ),
     child: LayoutBuilder(
       builder: (context, box) {
@@ -424,15 +169,12 @@ class OrganizerTodayScreen extends StatelessWidget {
             children: [
               Text(
                 'Ближайшее мероприятие',
-                style: OrganizerTodayStyle.text(
-                  13,
-                  color: const Color(0xFFC3D8CC),
-                ),
+                style: OrganizerStyle.text(13, color: const Color(0xFFC3D8CC)),
               ),
               const SizedBox(height: 20),
               Text(
                 event?.title ?? 'Ваша следующая встреча',
-                style: OrganizerTodayStyle.text(
+                style: OrganizerStyle.text(
                   24,
                   color: Colors.white,
                   weight: FontWeight.w600,
@@ -443,10 +185,7 @@ class OrganizerTodayScreen extends StatelessWidget {
                 event == null
                     ? 'Создайте мероприятие и пригласите участников.'
                     : '${event.date}\n${event.format}',
-                style: OrganizerTodayStyle.text(
-                  15,
-                  color: const Color(0xFFDDEAE2),
-                ),
+                style: OrganizerStyle.text(15, color: const Color(0xFFDDEAE2)),
               ),
               const SizedBox(height: 24),
               if (event != null) ...[
@@ -460,7 +199,7 @@ class OrganizerTodayScreen extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(
                   'Участников: ${store.attendees(event.id).length} · ${event.category}',
-                  style: OrganizerTodayStyle.text(
+                  style: OrganizerStyle.text(
                     13,
                     color: const Color(0xFFC3D8CC),
                   ),
@@ -507,23 +246,20 @@ class OrganizerTodayScreen extends StatelessWidget {
       children: [
         Text(
           'Подготовка',
-          style: OrganizerTodayStyle.text(20, weight: FontWeight.w600),
+          style: OrganizerStyle.text(20, weight: FontWeight.w600),
         ),
         const SizedBox(height: 12),
         if (store.drafts.isNotEmpty) ...[
           Text(
             'Вернитесь к черновику',
-            style: OrganizerTodayStyle.text(15, weight: FontWeight.w600),
+            style: OrganizerStyle.text(15, weight: FontWeight.w600),
           ),
           const SizedBox(height: 4),
           Text(
             store.drafts.first.title.isEmpty
                 ? 'Новое мероприятие'
                 : store.drafts.first.title,
-            style: OrganizerTodayStyle.text(
-              13,
-              color: OrganizerTodayStyle.muted,
-            ),
+            style: OrganizerStyle.text(13, color: OrganizerStyle.muted),
           ),
           link(
             'Продолжить',
@@ -533,15 +269,12 @@ class OrganizerTodayScreen extends StatelessWidget {
         ] else ...[
           Text(
             'Все события опубликованы',
-            style: OrganizerTodayStyle.text(15, weight: FontWeight.w600),
+            style: OrganizerStyle.text(15, weight: FontWeight.w600),
           ),
           const SizedBox(height: 4),
           Text(
             'Можно проверить программу и подготовить материалы для участников.',
-            style: OrganizerTodayStyle.text(
-              13,
-              color: OrganizerTodayStyle.muted,
-            ),
+            style: OrganizerStyle.text(13, color: OrganizerStyle.muted),
           ),
           link('Открыть материалы', () => onSection(3)),
         ],
@@ -553,7 +286,7 @@ class OrganizerTodayScreen extends StatelessWidget {
             Expanded(
               child: Text(
                 'Партнёры для события',
-                style: OrganizerTodayStyle.text(15, weight: FontWeight.w600),
+                style: OrganizerStyle.text(15, weight: FontWeight.w600),
               ),
             ),
           ],
@@ -563,7 +296,7 @@ class OrganizerTodayScreen extends StatelessWidget {
           store.partnerRequests.isEmpty
               ? 'Найдите бренды, которым близка ваша аудитория.'
               : 'Запросов: ${store.partnerRequests.length}. Проверьте предложения и условия.',
-          style: OrganizerTodayStyle.text(13, color: OrganizerTodayStyle.muted),
+          style: OrganizerStyle.text(13, color: OrganizerStyle.muted),
         ),
         link(
           'Партнёрства',
@@ -598,16 +331,13 @@ class OrganizerTodayScreen extends StatelessWidget {
                   children: [
                     Text(
                       '${date.day}',
-                      style: OrganizerTodayStyle.text(
-                        24,
-                        weight: FontWeight.w600,
-                      ),
+                      style: OrganizerStyle.text(24, weight: FontWeight.w600),
                     ),
                     Text(
                       dateLabel,
-                      style: OrganizerTodayStyle.text(
+                      style: OrganizerStyle.text(
                         12,
-                        color: OrganizerTodayStyle.muted,
+                        color: OrganizerStyle.muted,
                       ),
                     ),
                   ],
@@ -620,17 +350,14 @@ class OrganizerTodayScreen extends StatelessWidget {
                   children: [
                     Text(
                       event.title,
-                      style: OrganizerTodayStyle.text(
-                        15,
-                        weight: FontWeight.w600,
-                      ),
+                      style: OrganizerStyle.text(15, weight: FontWeight.w600),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '${event.time} · ${event.format}',
-                      style: OrganizerTodayStyle.text(
+                      style: OrganizerStyle.text(
                         13,
-                        color: OrganizerTodayStyle.muted,
+                        color: OrganizerStyle.muted,
                       ),
                     ),
                     const SizedBox(height: 6),
@@ -638,9 +365,9 @@ class OrganizerTodayScreen extends StatelessWidget {
                       store.isCancelled(event.id)
                           ? 'Событие отменено'
                           : 'Участников: ${store.attendees(event.id).length} · Опубликовано',
-                      style: OrganizerTodayStyle.text(
+                      style: OrganizerStyle.text(
                         12,
-                        color: OrganizerTodayStyle.muted,
+                        color: OrganizerStyle.muted,
                       ),
                     ),
                   ],
@@ -701,7 +428,6 @@ class OrganizerTodayScreen extends StatelessWidget {
       final nearest = upcoming.firstOrNull;
       final content = Column(
         children: [
-          header(wide),
           Expanded(
             child: SingleChildScrollView(
               key: const PageStorageKey('organizer-today-brand'),
@@ -718,7 +444,7 @@ class OrganizerTodayScreen extends StatelessWidget {
                         children: [
                           Text(
                             'Сегодня организатора',
-                            style: OrganizerTodayStyle.text(
+                            style: OrganizerStyle.text(
                               32,
                               weight: FontWeight.w700,
                             ),
@@ -726,9 +452,9 @@ class OrganizerTodayScreen extends StatelessWidget {
                           const SizedBox(height: 8),
                           Text(
                             'Здравствуйте, Наталья. Всё для ваших ближайших встреч.',
-                            style: OrganizerTodayStyle.text(
+                            style: OrganizerStyle.text(
                               15,
-                              color: OrganizerTodayStyle.muted,
+                              color: OrganizerStyle.muted,
                             ),
                           ),
                         ],
@@ -836,7 +562,7 @@ class OrganizerTodayScreen extends StatelessWidget {
                                             children: [
                                               Text(
                                                 '${item.$2}',
-                                                style: OrganizerTodayStyle.text(
+                                                style: OrganizerStyle.text(
                                                   32,
                                                   weight: FontWeight.w300,
                                                 ),
@@ -844,10 +570,9 @@ class OrganizerTodayScreen extends StatelessWidget {
                                               const SizedBox(height: 4),
                                               Text(
                                                 item.$1,
-                                                style: OrganizerTodayStyle.text(
+                                                style: OrganizerStyle.text(
                                                   12,
-                                                  color:
-                                                      OrganizerTodayStyle.muted,
+                                                  color: OrganizerStyle.muted,
                                                 ),
                                               ),
                                             ],
@@ -865,7 +590,7 @@ class OrganizerTodayScreen extends StatelessWidget {
                               Expanded(
                                 child: Text(
                                   'Ваши мероприятия',
-                                  style: OrganizerTodayStyle.text(
+                                  style: OrganizerStyle.text(
                                     24,
                                     weight: FontWeight.w600,
                                   ),
@@ -880,7 +605,7 @@ class OrganizerTodayScreen extends StatelessWidget {
                             panel(
                               Text(
                                 'Здесь появятся ваши опубликованные мероприятия.',
-                                style: OrganizerTodayStyle.text(15),
+                                style: OrganizerStyle.text(15),
                               ),
                             ),
                           if (!twoColumns) ...[
@@ -890,9 +615,9 @@ class OrganizerTodayScreen extends StatelessWidget {
                           const SizedBox(height: 20),
                           Text(
                             'Демонстрационный кабинет · 20 октября 2026. Изменения сохраняются до перезагрузки.',
-                            style: OrganizerTodayStyle.text(
+                            style: OrganizerStyle.text(
                               12,
-                              color: OrganizerTodayStyle.muted,
+                              color: OrganizerStyle.muted,
                             ),
                           ),
                         ],
@@ -903,37 +628,15 @@ class OrganizerTodayScreen extends StatelessWidget {
               ),
             ),
           ),
-          if (!wide)
-            Container(
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                border: Border(top: BorderSide(color: C.line)),
-              ),
-              child: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                child: Row(
-                  children: [
-                    for (var i = 0; i < menu.length; i++) navItem(i, false),
-                  ],
-                ),
-              ),
-            ),
         ],
       );
-      return ColoredBox(
-        color: C.canvas,
-        child: wide
-            ? Row(
-                children: [
-                  sidebar(),
-                  Expanded(child: content),
-                ],
-              )
-            : content,
+      return OrganizerShell(
+        store: store,
+        selected: 0,
+        title: 'Сегодня',
+        onSection: onSection,
+        onCatalog: onCatalog,
+        child: content,
       );
     },
   );
